@@ -1,0 +1,94 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Claude API</title>
+</head>
+<body>
+    <h1>Claude API</h1>
+    <form method="POST">
+        <input type="text" name="user_input" placeholder="Enter your message">
+        <input type="submit" value="Send">
+    </form>
+    {% if bot_response %}
+        <h2>User Input:</h2>
+        <p>{{ user_input }}</p>
+        <h2>Bot Response:</h2>
+        <p>{{ bot_response }}</p>
+    {% endif %}
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Claude API</title>
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="mt-4">Claude API</h1>
+
+        <!-- <div class="row">
+            <div class="col-md-6 text-end">
+                <form action="/new_chat" method="POST">
+                    <button type="submit" class="btn btn-success">New Chat</button>
+                </form>
+            </div>
+        </div> -->
+
+        <div class="card">
+            <div class="card-body">
+                <div class="chat-history">
+                    {% for message in chat_history %}
+                        <div class="message {{ 'user' if message.role == 'user' else 'bot' }}">
+                            <p>{{ message.content }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer">
+                <form method="POST">
+                    <div class="input-group">
+                        <input type="hidden" name="topic" value="{{ topic }}">
+                        <input type="text" name="user_input" placeholder="Type your message..." class="form-control" required>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    
+    <!-- <div class="new-chat">
+        <form action="/new_chat" method="POST">
+            <button type="submit">New Chat</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h1>Claude API</h1>
+        <div class="chat-container">
+            <div class="chat-history">
+                {% for message in chat_history %}
+                    <div class="message {{ 'user' if message.role == 'user' else 'bot' }}">
+                        <p>{{ message.content }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="input-container">
+                <form method="POST">
+                    <input type="text" name="user_input" placeholder="Type your message..." required>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+    </div> -->
+
+
+
+</body>
+</html>
