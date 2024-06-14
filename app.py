@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, jsonify
 import anthropic
 from config import ANTHROPIC_API_KEY
 import re
+import os
+
 
 app = Flask(__name__)
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 chat_history = []
 
