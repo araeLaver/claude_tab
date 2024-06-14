@@ -1,25 +1,25 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import anthropic
 from config import ANTHROPIC_API_KEY
+import re
 
 app = Flask(__name__)
-
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
 chat_history = []
 
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        user_input = request.form["user_input"]
+        user_input = request.json["user_input"]
         response = client.messages.create(
             model="claude-3-opus-20240229",
-            max_tokens=4000,
-            temperature=0.9,
+            max_tokens=100,
+            temperature=0.1,
             messages=[
                 {
                     "role": "user",
-                    "content": [
+                    "content": 
+                    [
                         {
                             "type": "text",
                             "text": user_input
@@ -28,13 +28,41 @@ def home():
                 }
             ]
         )
-    #     bot_response = response.content
-    #     return render_template("index.html", user_input=user_input, bot_response=bot_response)
-    # return render_template("index.html")
-        bot_response = response.content
+ 
+        # bot_response = response.content
+        bot_response = response.content[0].text
+
+        print("# response #")
+        print(response)
+
+        bot_response = format_response(bot_response)
+        
+        print("@ formating @")
+        print(bot_response)
+
+
         chat_history.append({"role": "user", "content": user_input})
         chat_history.append({"role": "bot", "content": bot_response})
+        return jsonify({"bot_response": bot_response})  # JSON 형식으로 응답 반환
+    
+
     return render_template("index.html", chat_history=chat_history)
+
+
+
+
+def format_response(response_text):
+    code_block_pattern = re.compile(r'```(\w*)\n([\s\S]*?)```', re.MULTILINE)
+    
+    def replace(match):
+        language = match.group(1)
+        code = match.group(2)
+        return f'<pre><code class="{language}"><button onclick="copyCode(this)">Copy</button>{code}</code></pre>'
+
+    formatted_response = code_block_pattern.sub(replace, response_text)
+    return formatted_response
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
