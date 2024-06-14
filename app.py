@@ -12,7 +12,7 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 # deploy 전용
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 chat_history = []
-
+print("ANTHROPIC_API_KEY :: " + ANTHROPIC_API_KEY)
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
