@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import anthropic
+
+
 # from config import ANTHROPIC_API_KEY
 import re
 import os
@@ -10,6 +12,7 @@ app = Flask(__name__)
 # deploy 전용
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 # deploy 전용
+
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 chat_history = []
 print("ANTHROPIC_API_KEY :: " + ANTHROPIC_API_KEY)
@@ -19,7 +22,7 @@ def home():
         user_input = request.json["user_input"]
         response = client.messages.create(
             model="claude-3-opus-20240229",
-            max_tokens=100,
+            max_tokens=4000,
             temperature=0.1,
             messages=[
                 {

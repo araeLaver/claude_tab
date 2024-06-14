@@ -3,237 +3,166 @@
 <head>
     <title>Claude API</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"> -->
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-image: url('https://www.example.com/cartoon-space-background.jpg');
-            background-size: cover;
-            background-position: center;
-            color: #ffffff;
+            background-color: #f0f8ff;
             margin: 0;
             padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
-            max-width: 1000; 
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        h1 {
-            text-align: center;
-            color: #ffffff;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .card {
-            background-color: rgba(31, 31, 31, 0.9);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            height: calc(100vh - 150px);
-            overflow-y: auto;
+        .chat-container {
+            background-color: #ffffff;
             border-radius: 10px;
-        }
-
-        .form-control {
-            background-color: rgba(43, 43, 43, 0.8);
-            color: #ffffff;
-            border-color: #2b2b2b;
-            border-radius: 20px;
-        }
-
-        .form-control:focus {
-            background-color: rgba(43, 43, 43, 0.8);
-            color: #ffffff;
-            border-color: #007bff;
-            box-shadow: none;
-        }
-
-        .chat-history {
-            padding: 20px;
-            max-height: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
             overflow-y: auto;
-        }
-
-        .message {
+            padding: 20px;
             margin-bottom: 20px;
         }
 
-        .user {
-            text-align: right;
+        .chat-bubble {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 70%;
         }
 
-        .user p {
+        .user-bubble {
             background-color: #007bff;
             color: #ffffff;
-            padding: 10px;
-            border-radius: 20px;
-            display: inline-block;
+            align-self: flex-end;
+            margin-left: auto;
         }
 
-        .bot {
-            text-align: left;
-        }
-
-        .bot p {
+        .bot-bubble {
             background-color: #e6e6e6;
             color: #333333;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        .input-container {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .input-container input {
+            flex-grow: 1;
             padding: 10px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
         }
 
-        .input-area {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background-color: rgba(31, 31, 31, 0.9);
-            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-primary {
+        .input-container button {
+            padding: 10px 20px;
             background-color: #007bff;
-            border-color: #007bff;
-            border-radius: 20px;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
         }
 
-        input[name="user_input"] {
-            resize: none;
-        }
-
-        .visually-hidden {
+        .error {
+            color: #ff3333;
+            text-align: center;
+            margin-top: 10px;
             display: none;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h1 class="mt-4 text-center">Claude</h1>
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card">
-                    <!-- <div class="chat-history">
-                        {{ chat_history }}
-                        {% for message in chat_history %}
-                            <div class="message {{ 'user' if message.role == 'user' else 'bot' }}">
-                                {% if message.role == 'bot' %}
-                                    {{ message.content|safe }}
-                                {% else %}
-                                    <p>{{ message.content }}</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>  -->
-
-                    <div class="chat-history">
-                        {% for message in chat_history %}
-                            <div class="message {{ 'user' if message.role == 'user' else 'bot' }}">
-                                {% if message.role == 'bot' %}
-                                    {% for paragraph in message.content.split('\n') %}
-                                        <p>{{ paragraph }}</p>
-                                    {% endfor %}
-                                {% else %}
-                                    <p>{{ message.content }}</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
+        <h1 class="text-center">Claude </h1>
+        <div class="chat-container">
+            {% for message in chat_history %}
+                <div class="chat-bubble {% if message.role == 'user' %}user-bubble{% else %}bot-bubble{% endif %}">
+                    {{ message.content }}
                 </div>
-            </div>
+            {% endfor %}
         </div>
-    </div>
-
-    <div class="input-area">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <form method="POST">
-                        <div class="input-group">
-                            <input type="text" name="user_input" placeholder="Type your message..." class="form-control" required>
-                            <button type="submit" class="btn btn-primary" id="submit-btn">
-                                <span class="spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true"></span>
-                                <span>Send</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
         </div>
+        <div class="loading" id="loading">Loading...</div>
+        <div class="error" id="error">An error occurred. Please try again.</div>
     </div>
 
     <script>
-        function copyCode(button) {
-            const pre = button.parentElement;
-            const code = pre.querySelector('code').innerText;
-            navigator.clipboard.writeText(code);
+        const chatContainer = document.querySelector('.chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
 
-            button.textContent = 'Copied!';
-            setTimeout(() => {
-                button.textContent = 'Copy';
-            }, 2000);
-        }
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
 
-        const form          = document.querySelector('form');
-        const submitBtn     = document.getElementById('submit-btn');
-        const spinner       = submitBtn.querySelector('.spinner-border');
-        const chatHistory   = document.querySelector('.chat-history');
-        const card          = document.querySelector('.card');
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message !== '') {
+                appendMessage('user', message);
+                userInput.value = '';
+                loading.style.display = 'block';
+                sendBtn.disabled = true;
+                userInput.disabled = true;
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            spinner.classList.remove('visually-hidden');
-            submitBtn.disabled = true;
-
-            const userInput     = document.querySelector('input[name="user_input"]').value;
-            const userMessage   = document.createElement('div');
-
-            userMessage.classList.add('message', 'user');
-            userMessage.innerHTML = `<p>${userInput}</p>`;
-            chatHistory.appendChild(userMessage);
-            form.reset();
-            card.scrollTop = card.scrollHeight;
-
-            try {
-                const response = await fetch('/', {
+                fetch('/', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    // body: `user_input=${encodeURIComponent(userInput)}`,
-                    body: JSON.stringify({ user_input: userInput }),
+                    body: JSON.stringify({ user_input: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    appendMessage('bot', data.bot_response);
+                    loading.style.display = 'none';
+                    sendBtn.disabled = false;
+                    userInput.disabled = false;
+                })
+                .catch(err => {
+                    console.error(err);
+                    error.style.display = 'block';
+                    loading.style.display = 'none';
+                    sendBtn.disabled = false;
+                    userInput.disabled = false;
                 });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const botResponse = data.bot_response;
-
-                    const botMessage = document.createElement('div');
-                    botMessage.classList.add('message', 'bot');
-                    botMessage.innerHTML = botResponse;
-
-                    chatHistory.appendChild(botMessage);
-                    card.scrollTop = card.scrollHeight;
-                } else {
-                    console.error('Error:', response.status);
-                }
-            } catch (error) {
-                console.error('Error:', error);
             }
+        }
 
-            spinner.classList.add('visually-hidden');
-            submitBtn.disabled = false;
-        });
-        
+        function appendMessage(role, content) {
+            const chatBubble = document.createElement('div');
+            chatBubble.classList.add('chat-bubble', `${role}-bubble`);
+            chatBubble.innerText = content;
+            chatContainer.appendChild(chatBubble);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     </script>
 </body>
 </html>
